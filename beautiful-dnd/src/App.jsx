@@ -1,180 +1,79 @@
-import { Component } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import style from "./App.module.css";
 
-const getItems = (count, offset = 0) =>
-  Array.from({ length: count }, (v, k) => k).map((k) => ({
-    id: `item-${k + offset}`,
-    content: `item ${k + offset}`,
-  }));
+const FirstTasksList = [
+  { id: 1, taskName: "Task #1" },
+  { id: 2, taskName: "Task #2" },
+  { id: 3, taskName: "Task #3" },
+  { id: 4, taskName: "Task #4" },
+  { id: 5, taskName: "Task #5" },
+];
 
-// a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
+const SecondTasksList = [
+  { id: 6, taskName: `Task #6` },
+  { id: 7, taskName: "Task #7" },
+  { id: 8, taskName: "Task #8" },
+  { id: 9, taskName: "Task #9" },
+  { id: 10, taskName: "Task #10" },
+];
 
-  return result;
-};
-
-/**
- * Moves an item from one list to another list.
- */
-const move = (source, destination, droppableSource, droppableDestination) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
-
-  destClone.splice(droppableDestination.index, 0, removed);
-
-  const result = {};
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
-
-const grid = 8;
-
-const getItemStyle = (isDragging, draggableStyle) => ({
-  userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
-
-  // styles we need to apply on draggables
-  ...draggableStyle,
-});
-
-const getListStyle = (isDraggingOver) => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250,
-});
-
-class App extends Component {
-  state = {
-    items: getItems(10),
-    selected: getItems(5, 10),
+function App() {
+  const getTasks = (listItemsCollection) => {
+    const list = listItemsCollection.map((item, index) => (
+      <Draggable
+        key={item.id}
+        draggableId={"draggable" + item.id}
+        index={index}
+      >
+        {(provided) => (
+          <div
+            className={style.task}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+          >
+            {item.taskName}
+          </div>
+        )}
+      </Draggable>
+    ));
+    return list;
   };
 
-  /**
-   * A semi-generic way to handle multiple lists. Matches
-   * the IDs of the droppable container to the names of the
-   * source arrays stored in the state.
-   */
-  id2List = {
-    droppable: "items",
-    droppable2: "selected",
-  };
-
-  getList = (id) => this.state[this.id2List[id]];
-
-  onDragEnd = (result) => {
-    const { source, destination } = result;
-
-    // dropped outside the list
-    if (!destination) {
-      return;
-    }
-
-    if (source.droppableId === destination.droppableId) {
-      const items = reorder(
-        this.getList(source.droppableId),
-        source.index,
-        destination.index
-      );
-
-      let state = { items };
-
-      if (source.droppableId === "droppable2") {
-        state = { selected: items };
-      }
-
-      this.setState(state);
-    } else {
-      const result = move(
-        this.getList(source.droppableId),
-        this.getList(destination.droppableId),
-        source,
-        destination
-      );
-
-      this.setState({
-        items: result.droppable,
-        selected: result.droppable2,
-      });
-    }
-  };
-
-  render() {
-    return (
-      <div className={style.wrapper}>
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          <div className={style.box}>
-            <Droppable droppableId="droppable">
-              {(provided, snapshot) => (
+  return (
+    <div className={style.root}>
+      <div className={style.container}>
+        <DragDropContext
+          onDragEnd={() => {
+            console.log("DragEnded");
+          }}
+        >
+          <div className={style.tasks_holder}>
+            <h2 className={style.tasks_header}>TasksHolder #1</h2>
+            <Droppable droppableId="droppable-1">
+              {(provided) => (
                 <div
+                  className={style.tasks_container}
+                  {...provided.droppableProps}
                   ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
                 >
-                  {this.state.items.map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={getItemStyle(
-                            snapshot.isDragging,
-                            provided.draggableProps.style
-                          )}
-                        >
-                          {item.content}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                  {getTasks(FirstTasksList)}
                   {provided.placeholder}
                 </div>
               )}
             </Droppable>
           </div>
-          <div className={style.box}>
-            <Droppable droppableId="droppable2" className={style.box}>
-              {(provided, snapshot) => (
+          <div className={style.tasks_holder}>
+            <h2 className={style.tasks_header}>TasksHolder #2</h2>
+            <Droppable droppableId="droppable-2">
+              {(provided) => (
                 <div
+                  className={style.tasks_container}
+                  {...provided.droppableProps}
                   ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
                 >
-                  {this.state.selected.map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={getItemStyle(
-                            snapshot.isDragging,
-                            provided.draggableProps.style
-                          )}
-                        >
-                          {item.content}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                  {getTasks(SecondTasksList)}
                   {provided.placeholder}
                 </div>
               )}
@@ -182,8 +81,8 @@ class App extends Component {
           </div>
         </DragDropContext>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;
