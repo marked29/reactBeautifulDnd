@@ -19,11 +19,21 @@ const SecondTasksList = [
   { id: 10, taskName: "Task #10" },
 ];
 
+const DROPPABLE_INPUT_ID_1 = "droppable1";
+const DROPPABLE_INPUT_ID_2 = "droppable2";
+
 const App = () => {
   const [tasksList, updateTasksListState] = useState({
     first: [...FirstTasksList],
     second: [...SecondTasksList],
   });
+
+  const listIdsMapping = {
+    DROPPABLE_INPUT_ID_1: "first",
+    DROPPABLE_INPUT_ID_2: "second",
+  };
+
+  const getMappingForListsIds = (id) => listIdsMapping[id];
 
   /**
    *
@@ -64,6 +74,8 @@ const App = () => {
 
   const handleDragEnd = (result) => {
     console.log(result);
+    console.log(tasksList[getMappingForListsIds(result.source.droppableId)]);
+    console.log(getMappingForListsIds(result.destination.droppableId));
 
     const items1 = Array.from(tasksList.first);
     const items2 = Array.from(tasksList.second);
@@ -118,7 +130,7 @@ const App = () => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #1</h2>
-            <Droppable droppableId="droppable-1">
+            <Droppable droppableId={DROPPABLE_INPUT_ID_1}>
               {(provided) => (
                 <div
                   className={style.tasks_container}
@@ -150,7 +162,7 @@ const App = () => {
           </div>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #2</h2>
-            <Droppable droppableId="droppable-2">
+            <Droppable droppableId={DROPPABLE_INPUT_ID_2}>
               {(provided) => (
                 <div
                   className={style.tasks_container}
