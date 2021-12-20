@@ -19,8 +19,13 @@ const SecondTasksList = [
   { id: 10, taskName: "Task #10" },
 ];
 
-const DROPPABLE_INPUT_ID_1 = "droppable1";
-const DROPPABLE_INPUT_ID_2 = "droppable2";
+/**
+ * Constants should have the same name i.e.
+ * const DROPPABLE1 = "DROPPABLE1"
+ * const DROPPABLE2 = "DROPPABLE2"
+ */
+const DROPPABLE1 = "DROPPABLE1";
+const DROPPABLE2 = "DROPPABLE2";
 
 const App = () => {
   const [tasksList, updateTasksListState] = useState({
@@ -29,8 +34,8 @@ const App = () => {
   });
 
   const listIdsMapping = {
-    DROPPABLE_INPUT_ID_1: "first",
-    DROPPABLE_INPUT_ID_2: "second",
+    DROPPABLE1: "first",
+    DROPPABLE2: "second",
   };
 
   const getMappingForListsIds = (id) => listIdsMapping[id];
@@ -54,8 +59,8 @@ const App = () => {
    *
    * @param {list} source list from which the element to be ejected
    * @param {list} destination list where the ejected element be added to
-   * @param {list} droppableSource list item to be ejected
-   * @param {list} droppableDestination list item to be added
+   * @param {item} droppableSource list item to be ejected
+   * @param {item} droppableDestination list item to be added
    * @returns
    */
   const move = (source, destination, droppableSource, droppableDestination) => {
@@ -74,7 +79,7 @@ const App = () => {
 
   const handleDragEnd = (result) => {
     console.log(result);
-    console.log(tasksList[getMappingForListsIds(result.source.droppableId)]);
+    console.log(getMappingForListsIds(result.source.droppableId));
     console.log(getMappingForListsIds(result.destination.droppableId));
 
     const items1 = Array.from(tasksList.first);
@@ -130,7 +135,7 @@ const App = () => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #1</h2>
-            <Droppable droppableId={DROPPABLE_INPUT_ID_1}>
+            <Droppable droppableId={DROPPABLE1}>
               {(provided) => (
                 <div
                   className={style.tasks_container}
@@ -162,7 +167,7 @@ const App = () => {
           </div>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #2</h2>
-            <Droppable droppableId={DROPPABLE_INPUT_ID_2}>
+            <Droppable droppableId={DROPPABLE2}>
               {(provided) => (
                 <div
                   className={style.tasks_container}
