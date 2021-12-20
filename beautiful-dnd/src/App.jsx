@@ -65,11 +65,14 @@ const App = () => {
   const handleDragEnd = (result) => {
     console.log(result);
 
-    const items = Array.from(tasksList.first);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const items1 = Array.from(tasksList.first);
+    const items2 = Array.from(tasksList.second);
+    const [reorderedItem1] = items1.splice(result.source.index, 1);
+    const [reorderedItem2] = items2.splice(result.source.index, 1);
+    items1.splice(result.destination.index, 0, reorderedItem1);
+    items2.splice(result.destination.index, 0, reorderedItem2);
 
-    updateTasksListState({ first: [...items], second: [...tasksList.second] });
+    updateTasksListState({ first: [...items1], second: [...items2] });
   };
 
   const handleDragEnd2 = (result) => {
