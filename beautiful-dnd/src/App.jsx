@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import style from "./App.module.css";
@@ -18,37 +19,100 @@ const SecondTasksList = [
   { id: 10, taskName: "Task #10" },
 ];
 
-function App() {
-  const getTasks = (listItemsCollection) => {
-    const list = listItemsCollection.map((item, index) => (
-      <Draggable
-        key={item.id}
-        draggableId={"draggable" + item.id}
-        index={index}
-      >
-        {(provided) => (
-          <div
-            className={style.task}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            ref={provided.innerRef}
-          >
-            {item.taskName}
-          </div>
-        )}
-      </Draggable>
-    ));
-    return list;
+const App = () => {
+  const [tasksList, updateTasksListState] = useState({
+    first: [...FirstTasksList],
+    second: [...SecondTasksList],
+  });
+
+  /**
+   *
+   * @param {list} list source array where drag-n-drop action occurred
+   * @param {number} startIndex start index for search the element to be deleted
+   * @param {number} endIndex start index for search for element to be added
+   * @returns
+   */
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+
+  /**
+   *
+   * @param {list} source list from which the element to be ejected
+   * @param {list} destination list where the ejected element be added to
+   * @param {list} droppableSource list item to be ejected
+   * @param {list} droppableDestination list item to be added
+   * @returns
+   */
+  const move = (source, destination, droppableSource, droppableDestination) => {
+    const sourceClone = Array.from(source);
+    const destClone = Array.from(destination);
+    const [removed] = sourceClone.splice(droppableSource.index, 1);
+
+    destClone.splice(droppableDestination.index, 0, removed);
+
+    const result = {};
+    result[droppableSource.droppableId] = sourceClone;
+    result[droppableDestination.droppableId] = destClone;
+
+    return result;
+  };
+
+  const handleDragEnd = (result) => {
+    console.log(result);
+
+    const items = Array.from(tasksList.first);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    updateTasksListState({ first: [...items], second: [...tasksList.second] });
+  };
+
+  const handleDragEnd2 = (result) => {
+    const { source, destination } = result;
+
+    // dropped outside the list
+    if (!destination) {
+      return;
+    }
+
+    if (source.droppableId === destination.droppableId) {
+      const items = reorder(
+        this.getList(source.droppableId),
+        source.index,
+        destination.index
+      );
+
+      let state = { items };
+
+      if (source.droppableId === "droppable2") {
+        state = { selected: items };
+      }
+
+      this.setState(state);
+    } else {
+      const result = move(
+        this.getList(source.droppableId),
+        this.getList(destination.droppableId),
+        source,
+        destination
+      );
+
+      this.setState({
+        items: result.droppable,
+        selected: result.droppable2,
+      });
+    }
   };
 
   return (
     <div className={style.root}>
       <div className={style.container}>
-        <DragDropContext
-          onDragEnd={() => {
-            console.log("DragEnded");
-          }}
-        >
+        <DragDropContext onDragEnd={handleDragEnd}>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #1</h2>
             <Droppable droppableId="droppable-1">
@@ -58,7 +122,24 @@ function App() {
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
-                  {getTasks(FirstTasksList)}
+                  {tasksList.first.map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={"draggable" + item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          className={style.task}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          ref={provided.innerRef}
+                        >
+                          {item.taskName}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
                   {provided.placeholder}
                 </div>
               )}
@@ -73,7 +154,24 @@ function App() {
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
-                  {getTasks(SecondTasksList)}
+                  {tasksList.second.map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={"draggable" + item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          className={style.task}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          ref={provided.innerRef}
+                        >
+                          {item.taskName}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
                   {provided.placeholder}
                 </div>
               )}
@@ -83,6 +181,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;
