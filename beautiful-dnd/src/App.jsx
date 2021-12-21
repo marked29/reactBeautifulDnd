@@ -32,28 +32,15 @@ const listIdsMapping = {
   DROPPABLE2: "second",
 };
 
+const getMappingForListsIds = (id) => listIdsMapping[id];
+const getAllListsFromMapping = () =>
+  Object.entries(listIdsMapping).map(([key, value]) => value);
+
 const App = () => {
   const [tasksList, updateTasksListState] = useState({
     first: [...FirstTasksList],
     second: [...SecondTasksList],
   });
-
-  const getMappingForListsIds = (id) => listIdsMapping[id];
-
-  /**
-   *
-   * @param {list} list source array where drag-n-drop action occurred
-   * @param {number} startIndex start index for search the element to be deleted
-   * @param {number} endIndex start index for search for element to be added
-   * @returns
-   */
-  const reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
 
   /**
    *
@@ -64,6 +51,10 @@ const App = () => {
    * @returns
    */
   const move = (source, destination, droppableSource, droppableDestination) => {
+    // console.log(source);
+    // console.log(destination);
+    console.log(droppableSource);
+    // console.log(droppableDestination);
     const sourceClone = Array.from(source);
     const destClone = Array.from(destination);
     const [removed] = sourceClone.splice(droppableSource.index, 1);
@@ -78,18 +69,25 @@ const App = () => {
   };
 
   const handleDragEnd = (result) => {
-    console.log(result);
-    console.log(getMappingForListsIds(result.source.droppableId));
-    console.log(getMappingForListsIds(result.destination.droppableId));
+    // Here we get id for the list that is being modified;
+    const modifiedListState = getMappingForListsIds(result.source.droppableId);
 
-    const items1 = Array.from(tasksList.first);
-    const items2 = Array.from(tasksList.second);
-    const [reorderedItem1] = items1.splice(result.source.index, 1);
-    const [reorderedItem2] = items2.splice(result.source.index, 1);
-    items1.splice(result.destination.index, 0, reorderedItem1);
-    items2.splice(result.destination.index, 0, reorderedItem2);
+    // Here we get the lists that are not being modified
+    // at the same time to keep their state as it used to be
+    const nonModifiedListStateToBeSaved = getAllListsFromMapping().filter(
+      (item) => item !== modifiedListState
+    );
 
-    updateTasksListState({ first: [...items1], second: [...items2] });
+    const items = Array.from(tasksList[modifiedListState]);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    updateTasksListState({
+      [modifiedListState]: [...items],
+      [nonModifiedListStateToBeSaved]: [
+        ...tasksList[nonModifiedListStateToBeSaved],
+      ],
+    });
   };
 
   const handleDragEnd2 = (result) => {
@@ -101,38 +99,26 @@ const App = () => {
     }
 
     if (source.droppableId === destination.droppableId) {
-      const items = reorder(
-        this.getList(source.droppableId),
-        source.index,
-        destination.index
-      );
-
-      let state = { items };
-
-      if (source.droppableId === "droppable2") {
-        state = { selected: items };
-      }
-
-      this.setState(state);
+      handleDragEnd(result);
     } else {
       const result = move(
-        this.getList(source.droppableId),
-        this.getList(destination.droppableId),
+        getMappingForListsIds(source.droppableId),
+        getMappingForListsIds(destination.droppableId),
         source,
         destination
       );
 
-      this.setState({
-        items: result.droppable,
-        selected: result.droppable2,
-      });
+      //   updateTasksListState({
+      //     first: [...result.DROPPABLE2],
+      //     second: [...result.DROPPABLE1],
+      //   });
     }
   };
 
   return (
     <div className={style.root}>
       <div className={style.container}>
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext onDragEnd={handleDragEnd2}>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #1</h2>
             <Droppable droppableId={DROPPABLE1}>
