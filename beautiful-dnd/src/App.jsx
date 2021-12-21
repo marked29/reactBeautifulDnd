@@ -27,16 +27,16 @@ const SecondTasksList = [
 const DROPPABLE1 = "DROPPABLE1";
 const DROPPABLE2 = "DROPPABLE2";
 
+const listIdsMapping = {
+  DROPPABLE1: "first",
+  DROPPABLE2: "second",
+};
+
 const App = () => {
   const [tasksList, updateTasksListState] = useState({
     first: [...FirstTasksList],
     second: [...SecondTasksList],
   });
-
-  const listIdsMapping = {
-    DROPPABLE1: "first",
-    DROPPABLE2: "second",
-  };
 
   const getMappingForListsIds = (id) => listIdsMapping[id];
 
