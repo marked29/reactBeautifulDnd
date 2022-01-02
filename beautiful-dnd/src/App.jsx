@@ -43,12 +43,9 @@ const App = () => {
   });
 
   /**
-   *
-   * @param {list} source list from which the element to be ejected
-   * @param {list} destination list where the ejected element be added to
+   * @param {obect} result instance that encapsulates information about source and destination
    * @param {item} droppableSource list item to be ejected
    * @param {item} droppableDestination list item to be added
-   * @returns
    */
   const move = (result, droppableSource, droppableDestination) => {
     const sourceListId = getMappingForListsIds(result.source.droppableId);
@@ -66,7 +63,10 @@ const App = () => {
     });
   };
 
-  const handleDragEnd = (result) => {
+  /**
+   * @param {obect} result instance that encapsulates information about source and destination
+   */
+  const reorderItems = (result) => {
     // Here we get id for the list that is being modified;
     const modifiedListState = getMappingForListsIds(result.source.droppableId);
 
@@ -88,16 +88,18 @@ const App = () => {
     });
   };
 
-  const handleDragEnd2 = (result) => {
+  /**
+   * @param {obect} result instance that encapsulates information about source and destination
+   */
+  const handleDragEnd = (result) => {
     const { source, destination } = result;
-
     // dropped outside the list
     if (!destination) {
       return;
     }
 
     if (source.droppableId === destination.droppableId) {
-      handleDragEnd(result);
+      reorderItems(result);
     } else {
       move(result, source, destination);
     }
@@ -106,7 +108,7 @@ const App = () => {
   return (
     <div className={style.root}>
       <div className={style.container}>
-        <DragDropContext onDragEnd={handleDragEnd2}>
+        <DragDropContext onDragEnd={handleDragEnd}>
           <div className={style.tasks_holder}>
             <h2 className={style.tasks_header}>TasksHolder #1</h2>
             <Droppable droppableId={DROPPABLE1}>
