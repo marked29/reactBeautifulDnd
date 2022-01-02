@@ -50,22 +50,20 @@ const App = () => {
    * @param {item} droppableDestination list item to be added
    * @returns
    */
-  const move = (source, destination, droppableSource, droppableDestination) => {
-    // console.log(source);
-    // console.log(destination);
-    console.log(droppableSource);
-    // console.log(droppableDestination);
-    const sourceClone = Array.from(source);
-    const destClone = Array.from(destination);
+  const move = (result, droppableSource, droppableDestination) => {
+    const sourceListId = getMappingForListsIds(result.source.droppableId);
+    const destListId = getMappingForListsIds(result.destination.droppableId);
+
+    const sourceClone = Array.from(tasksList[sourceListId]);
+    const destClone = Array.from(tasksList[destListId]);
     const [removed] = sourceClone.splice(droppableSource.index, 1);
 
     destClone.splice(droppableDestination.index, 0, removed);
 
-    const result = {};
-    result[droppableSource.droppableId] = sourceClone;
-    result[droppableDestination.droppableId] = destClone;
-
-    return result;
+    updateTasksListState({
+      [sourceListId]: [...sourceClone],
+      [destListId]: [...destClone],
+    });
   };
 
   const handleDragEnd = (result) => {
@@ -101,17 +99,7 @@ const App = () => {
     if (source.droppableId === destination.droppableId) {
       handleDragEnd(result);
     } else {
-      const result = move(
-        getMappingForListsIds(source.droppableId),
-        getMappingForListsIds(destination.droppableId),
-        source,
-        destination
-      );
-
-      //   updateTasksListState({
-      //     first: [...result.DROPPABLE2],
-      //     second: [...result.DROPPABLE1],
-      //   });
+      move(result, source, destination);
     }
   };
 
